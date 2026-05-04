@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel Cardíaco EPC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #fff;
+    }
+
+    header {
+      background: #020617;
+      padding: 22px;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .sub {
+      color: #94a3b8;
+      margin-top: 6px;
+    }
+
+    .container {
+      padding: 22px;
+      max-width: 1400px;
+      margin: auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    }
+
+    .name {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .meta {
+      color: #94a3b8;
+      margin-top: 6px;
+    }
+
+    .bpm {
+      font-size: 78px;
+      font-weight: bold;
+      color: #22c55e;
+      margin-top: 20px;
+      line-height: 1;
+    }
+
+    .bpm-label {
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .metric {
+      background: #0f172a;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .metric-label {
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    .metric-value {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .ok { color: #22c55e; }
+    .warn { color: #facc15; }
+    .bad { color: #ef4444; }
+    .blue { color: #38bdf8; }
+
+    .empty {
+      text-align: center;
+      color: #94a3b8;
+      padding: 60px;
+      border: 1px dashed #334155;
+      border-radius: 24px;
+    }
+
+    .footer {
+      margin-top: 24px;
+      color: #64748b;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Painel Cardíaco em Tempo Real</h1>
+  <div class="sub">Funcionários ativos, BPM, HRV, estresse, fadiga e recuperação</div>
+</header>
+
+<div class="container">
+  <div id="cards" class="grid"></div>
+  <div class="footer">
+    Status: <span id="status">iniciando...</span>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://kxvbgpvdjbgbhbovnpyy.supabase.co";
+const SUPABASE_KEY = "sb_publishable_yg8SSqYLolo0oWx_WZqsFA_5P4TBiAg";
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let sessions = {};
+let rrBuffers = {};
+let lastRR = {};
+
+const MAX_RR = 60;
+
+function pushRR(tag, rr) {
+  if (!rr || rr <= 0) return;
+
+  if (!rrBuffers[tag]) rrBuffers[tag] = [];
+
+  if (lastRR[tag] === rr) return;
+
+  lastRR[tag] = rr;
+  rrBuffers[tag].push(rr);
+
+  if (rrBuffers[tag].length > MAX_RR) {
+    rrBuffers[tag].shift();
+  }
+}
+
+function calcRMSSD(buffer) {
+  if (!buffer || buffer.length < 5) return null;
+
+  let sum = 0;
+
+  for (let i = 0; i < buffer.length - 1; i++) {
+    const diff = buffer[i + 1] - buffer[i];
+    sum += diff * diff;
+  }
+
+  return Math.sqrt(sum / (buffer.length - 1));
+}
+
+function classify(session, rmssd) {
+  const bpm = session.bpm || 0;
+
+  let stress = { text: "COLETANDO", cls: "warn" };
+  let fatigue = { text: "COLETANDO", cls: "warn" };
+  let recovery = { text: "COLETANDO", cls: "warn" };
+  let autonomic = { text: "COLETANDO", cls: "warn" };
+  let alert = { text: "NORMAL", cls: "ok" };
+
+  if (rmssd !== null) {
+    if (rmssd < 20) {
+      stress = { text: "ALTO", cls: "bad" };
+      fatigue = { text: "ALTA", cls: "bad" };
+      recovery = { text: "RUIM", cls: "bad" };
+      autonomic = { text: "SIMPÁTICO", cls: "bad" };
+    } else if (rmssd < 40) {
+      stress = { text: "MODERADO", cls: "warn" };
+      fatigue = { text: "MÉDIA", cls: "warn" };
+      recovery = { text: "ATENÇÃO", cls: "warn" };
+      autonomic = { text: "ALERTA", cls: "warn" };
+    } else {
+      stress = { text: "BAIXO", cls: "ok" };
+      fatigue = { text: "BAIXA", cls: "ok" };
+      recovery = { text: "BOA", cls: "ok" };
+      autonomic = { text: "EQUILIBRADO", cls: "ok" };
+    }
+
+    if (bpm > 100 && rmssd < 25) {
+      alert = { text: "SOBRECARGA", cls: "bad" };
+    } else if (bpm < 55) {
+      alert = { text: "BAIXA FC", cls: "blue" };
+    }
+  }
+
+  return { stress, fatigue, recovery, autonomic, alert };
+}
+
+function contactHTML(contact) {
+  return contact
+    ? '<span class="ok">COM CONTATO</span>'
+    : '<span class="bad">SEM CONTATO</span>';
+}
+
+function ageText(updatedAt) {
+  if (!updatedAt) return "--";
+
+  const diff = Date.now() - new Date(updatedAt).getTime();
+
+  if (diff < 3000) return "agora";
+  if (diff < 60000) return Math.round(diff / 1000) + "s atrás";
+
+  return Math.round(diff / 60000) + "min atrás";
+}
+
+function render() {
+  const list = Object.values(sessions).filter(s => s.active !== false);
+  const root = document.getElementById("cards");
+
+  if (list.length === 0) {
+    root.innerHTML = '<div class="empty">Nenhum funcionário ativo no momento.</div>';
+    return;
+  }
+
+  root.innerHTML = list.map(s => {
+    pushRR(s.strap_tag, s.rr_ms);
+
+    const buffer = rrBuffers[s.strap_tag] || [];
+    const rmssd = calcRMSSD(buffer);
+    const state = classify(s, rmssd);
+
+    return `
+      <div class="card">
+        <div class="name">${s.employee_name || "--"}</div>
+        <div class="meta">
+          Matrícula: ${s.employee_matricula || "--"} · Cinta: ${s.strap_tag || "--"}
+        </div>
+
+        <div class="bpm">${s.bpm ?? "--"}</div>
+        <div class="bpm-label">BPM</div>
+
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">RR atual</div>
+            <div class="metric-value">${s.rr_ms ?? "--"} ms</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">HRV RMSSD</div>
+            <div class="metric-value">${rmssd === null ? "coletando" : rmssd.toFixed(1) + " ms"}</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">Estresse</div>
+            <div class="metric-value ${state.stress.cls}">${state.stress.text}</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">Fadiga</div>
+            <div class="metric-value ${state.fatigue.cls}">${state.fatigue.text}</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">Recuperação</div>
+            <div class="metric-value ${state.recovery.cls}">${state.recovery.text}</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">Sistema nervoso</div>
+            <div class="metric-value ${state.autonomic.cls}">${state.autonomic.text}</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">Contato na pele</div>
+            <div class="metric-value">${contactHTML(s.contact)}</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">Estado de alerta</div>
+            <div class="metric-value ${state.alert.cls}">${state.alert.text}</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">Amostras RR</div>
+            <div class="metric-value">${buffer.length}/${MAX_RR}</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">Atualizado</div>
+            <div class="metric-value">${ageText(s.updated_at)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function fetchSessions() {
+  const { data, error } = await supabaseClient
+    .from("current_sessions")
+    .select("*")
+    .eq("active", true)
+    .order("employee_name", { ascending: true });
+
+  if (error) {
+    console.log(error);
+    document.getElementById("status").innerText = "erro ao buscar dados";
+    return;
+  }
+
+  sessions = {};
+
+  for (const s of data) {
+    sessions[s.strap_tag] = s;
+  }
+
+  document.getElementById("status").innerText = "online " + new Date().toLocaleTimeString();
+  render();
+}
+
+function startRealtime() {
+  supabaseClient
+    .channel("current_sessions_realtime")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "current_sessions" },
+      payload => {
+        if (payload.eventType === "DELETE") {
+          delete sessions[payload.old.strap_tag];
+        } else {
+          const s = payload.new;
+          if (s.active === false) {
+            delete sessions[s.strap_tag];
+          } else {
+            sessions[s.strap_tag] = s;
+          }
+        }
+
+        document.getElementById("status").innerText = "tempo real " + new Date().toLocaleTimeString();
+        render();
+      }
+    )
+    .subscribe();
+}
+
+fetchSessions();
+startRealtime();
+
+setInterval(fetchSessions, 3000);
+setInterval(render, 1000);
+</script>
+
+</body>
+</html>
