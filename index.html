@@ -2,12 +2,16 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Painel Cardíaco EPC</title>
+  <title>Painel Cardíaco EPC13</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -17,82 +21,192 @@
 
     header {
       background: #020617;
-      padding: 22px;
+      padding: 18px 22px;
       border-bottom: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     h1 {
       margin: 0;
-      font-size: 30px;
+      font-size: 26px;
     }
 
     .sub {
       color: #94a3b8;
-      margin-top: 6px;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button.off {
+      background: #334155;
     }
 
     .container {
-      padding: 22px;
-      max-width: 1400px;
+      padding: 18px;
+      max-width: 1800px;
       margin: auto;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .summary-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .summary-label {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .summary-value {
+      font-size: 28px;
+      font-weight: bold;
+      margin-top: 4px;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 14px;
     }
 
     .card {
+      position: relative;
       background: #1e293b;
       border: 1px solid #334155;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.22);
+      overflow: hidden;
+    }
+
+    .card.normal {
+      border-color: #22c55e;
+    }
+
+    .card.warning {
+      border-color: #facc15;
+    }
+
+    .card.risk {
+      border-color: #ef4444;
+      animation: pulseRisk 1s infinite;
+    }
+
+    @keyframes pulseRisk {
+      0% { box-shadow: 0 0 0 rgba(239,68,68,0.2); }
+      50% { box-shadow: 0 0 26px rgba(239,68,68,0.9); }
+      100% { box-shadow: 0 0 0 rgba(239,68,68,0.2); }
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
     }
 
     .name {
-      font-size: 26px;
+      font-size: 17px;
       font-weight: bold;
+      line-height: 1.1;
     }
 
     .meta {
       color: #94a3b8;
-      margin-top: 6px;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .status-dot {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .bpm-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin-top: 10px;
     }
 
     .bpm {
-      font-size: 78px;
+      font-size: 52px;
       font-weight: bold;
-      color: #22c55e;
-      margin-top: 20px;
       line-height: 1;
+      color: #22c55e;
+    }
+
+    .bpm.warning {
+      color: #facc15;
+    }
+
+    .bpm.risk {
+      color: #ef4444;
     }
 
     .bpm-label {
       color: #94a3b8;
-      margin-bottom: 20px;
+      font-size: 12px;
+    }
+
+    .mini-chart {
+      width: 90px;
+      height: 38px;
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 4px;
     }
 
     .metrics {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      gap: 8px;
+      margin-top: 12px;
     }
 
     .metric {
       background: #0f172a;
-      border-radius: 16px;
-      padding: 14px;
+      border-radius: 12px;
+      padding: 9px;
+      min-height: 50px;
     }
 
     .metric-label {
       color: #94a3b8;
-      font-size: 13px;
+      font-size: 11px;
     }
 
     .metric-value {
-      font-size: 20px;
+      font-size: 14px;
       font-weight: bold;
       margin-top: 4px;
     }
@@ -108,12 +222,13 @@
       padding: 60px;
       border: 1px dashed #334155;
       border-radius: 24px;
+      grid-column: 1 / -1;
     }
 
     .footer {
-      margin-top: 24px;
+      margin-top: 18px;
       color: #64748b;
-      font-size: 14px;
+      font-size: 13px;
     }
   </style>
 </head>
@@ -121,12 +236,42 @@
 <body>
 
 <header>
-  <h1>Painel Cardíaco em Tempo Real</h1>
-  <div class="sub">Funcionários ativos, BPM, HRV, estresse, fadiga e recuperação</div>
+  <div>
+    <h1>Painel Cardíaco em Tempo Real</h1>
+    <div class="sub">Funcionários ativos · BPM · HRV · estresse · fadiga · recuperação</div>
+  </div>
+
+  <div class="header-actions">
+    <button id="soundBtn" onclick="toggleSound()">🔊 Ativar alerta sonoro</button>
+  </div>
 </header>
 
 <div class="container">
+
+  <div class="summary">
+    <div class="summary-card">
+      <div class="summary-label">Ativos</div>
+      <div class="summary-value" id="sumActive">0</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label">Normal</div>
+      <div class="summary-value ok" id="sumNormal">0</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label">Atenção</div>
+      <div class="summary-value warn" id="sumWarning">0</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label">Risco alto</div>
+      <div class="summary-value bad" id="sumRisk">0</div>
+    </div>
+  </div>
+
   <div id="cards" class="grid"></div>
+
   <div class="footer">
     Status: <span id="status">iniciando...</span>
   </div>
@@ -140,12 +285,62 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let sessions = {};
 let rrBuffers = {};
+let bpmBuffers = {};
 let lastRR = {};
+let soundEnabled = false;
+let lastAlarmAt = 0;
 
 const MAX_RR = 60;
+const MAX_BPM = 25;
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById("soundBtn");
+  btn.innerText = soundEnabled ? "🔊 Alerta sonoro ligado" : "🔇 Alerta sonoro desligado";
+  btn.className = soundEnabled ? "" : "off";
+
+  if (soundEnabled) beep(0.05);
+}
+
+function beep(volume = 0.25) {
+  if (!soundEnabled) return;
+
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = 880;
+    gain.gain.value = volume;
+
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+
+    oscillator.start();
+
+    setTimeout(() => {
+      oscillator.stop();
+      ctx.close();
+    }, 220);
+  } catch (e) {
+    console.log("Áudio bloqueado:", e);
+  }
+}
+
+function alarmIfNeeded(hasRisk) {
+  if (!hasRisk) return;
+
+  const now = Date.now();
+
+  if (now - lastAlarmAt > 10000) {
+    lastAlarmAt = now;
+    beep(0.35);
+  }
+}
 
 function pushRR(tag, rr) {
-  if (!rr || rr <= 0) return;
+  if (!rr || rr <= 300 || rr >= 2000) return;
 
   if (!rrBuffers[tag]) rrBuffers[tag] = [];
 
@@ -156,6 +351,18 @@ function pushRR(tag, rr) {
 
   if (rrBuffers[tag].length > MAX_RR) {
     rrBuffers[tag].shift();
+  }
+}
+
+function pushBPM(tag, bpm) {
+  if (!bpm || bpm <= 20 || bpm >= 230) return;
+
+  if (!bpmBuffers[tag]) bpmBuffers[tag] = [];
+
+  bpmBuffers[tag].push(bpm);
+
+  if (bpmBuffers[tag].length > MAX_BPM) {
+    bpmBuffers[tag].shift();
   }
 }
 
@@ -174,6 +381,9 @@ function calcRMSSD(buffer) {
 
 function classify(session, rmssd) {
   const bpm = session.bpm || 0;
+  const contact = session.contact === true;
+
+  let level = "normal";
 
   let stress = { text: "COLETANDO", cls: "warn" };
   let fatigue = { text: "COLETANDO", cls: "warn" };
@@ -181,13 +391,20 @@ function classify(session, rmssd) {
   let autonomic = { text: "COLETANDO", cls: "warn" };
   let alert = { text: "NORMAL", cls: "ok" };
 
+  if (!contact) {
+    level = "warning";
+    alert = { text: "SEM CONTATO", cls: "warn" };
+  }
+
   if (rmssd !== null) {
-    if (rmssd < 20) {
+    if (rmssd < 18) {
+      level = "risk";
       stress = { text: "ALTO", cls: "bad" };
       fatigue = { text: "ALTA", cls: "bad" };
       recovery = { text: "RUIM", cls: "bad" };
       autonomic = { text: "SIMPÁTICO", cls: "bad" };
-    } else if (rmssd < 40) {
+    } else if (rmssd < 35) {
+      if (level !== "risk") level = "warning";
       stress = { text: "MODERADO", cls: "warn" };
       fatigue = { text: "MÉDIA", cls: "warn" };
       recovery = { text: "ATENÇÃO", cls: "warn" };
@@ -199,14 +416,25 @@ function classify(session, rmssd) {
       autonomic = { text: "EQUILIBRADO", cls: "ok" };
     }
 
-    if (bpm > 100 && rmssd < 25) {
+    if (bpm > 115 && rmssd < 25) {
+      level = "risk";
       alert = { text: "SOBRECARGA", cls: "bad" };
-    } else if (bpm < 55) {
-      alert = { text: "BAIXA FC", cls: "blue" };
+    } else if (bpm > 100 && rmssd < 35) {
+      if (level !== "risk") level = "warning";
+      alert = { text: "ATENÇÃO", cls: "warn" };
+    } else if (bpm < 50) {
+      if (level !== "risk") level = "warning";
+      alert = { text: "FC BAIXA", cls: "blue" };
     }
   }
 
-  return { stress, fatigue, recovery, autonomic, alert };
+  return { level, stress, fatigue, recovery, autonomic, alert };
+}
+
+function statusDot(level) {
+  if (level === "risk") return "🔴";
+  if (level === "warning") return "🟡";
+  return "🟢";
 }
 
 function contactHTML(contact) {
@@ -221,46 +449,104 @@ function ageText(updatedAt) {
   const diff = Date.now() - new Date(updatedAt).getTime();
 
   if (diff < 3000) return "agora";
-  if (diff < 60000) return Math.round(diff / 1000) + "s atrás";
+  if (diff < 60000) return Math.round(diff / 1000) + "s";
 
-  return Math.round(diff / 60000) + "min atrás";
+  return Math.round(diff / 60000) + "min";
+}
+
+function drawChart(tag) {
+  const data = bpmBuffers[tag] || [];
+  if (data.length < 2) return "";
+
+  const w = 90;
+  const h = 38;
+  const min = Math.min(...data) - 2;
+  const max = Math.max(...data) + 2;
+  const range = Math.max(max - min, 1);
+
+  let points = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - ((v - min) / range) * h;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+
+  return `
+    <svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
+      <polyline
+        points="${points}"
+        fill="none"
+        stroke="#22c55e"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  `;
 }
 
 function render() {
   const list = Object.values(sessions).filter(s => s.active !== false);
   const root = document.getElementById("cards");
 
+  let normal = 0;
+  let warning = 0;
+  let risk = 0;
+  let hasRisk = false;
+
   if (list.length === 0) {
+    document.getElementById("sumActive").innerText = 0;
+    document.getElementById("sumNormal").innerText = 0;
+    document.getElementById("sumWarning").innerText = 0;
+    document.getElementById("sumRisk").innerText = 0;
+
     root.innerHTML = '<div class="empty">Nenhum funcionário ativo no momento.</div>';
     return;
   }
 
   root.innerHTML = list.map(s => {
-    pushRR(s.strap_tag, s.rr_ms);
+    pushRR(s.strap_tag, Number(s.rr_ms));
+    pushBPM(s.strap_tag, Number(s.bpm));
 
-    const buffer = rrBuffers[s.strap_tag] || [];
-    const rmssd = calcRMSSD(buffer);
+    const rrBuffer = rrBuffers[s.strap_tag] || [];
+    const rmssd = calcRMSSD(rrBuffer);
     const state = classify(s, rmssd);
 
+    if (state.level === "risk") {
+      risk++;
+      hasRisk = true;
+    } else if (state.level === "warning") {
+      warning++;
+    } else {
+      normal++;
+    }
+
     return `
-      <div class="card">
-        <div class="name">${s.employee_name || "--"}</div>
-        <div class="meta">
-          Matrícula: ${s.employee_matricula || "--"} · Cinta: ${s.strap_tag || "--"}
+      <div class="card ${state.level}">
+        <div class="top">
+          <div>
+            <div class="name">${s.employee_name || "--"}</div>
+            <div class="meta">Mat: ${s.employee_matricula || "--"} · ${s.strap_tag || "--"}</div>
+          </div>
+          <div class="status-dot">${statusDot(state.level)}</div>
         </div>
 
-        <div class="bpm">${s.bpm ?? "--"}</div>
-        <div class="bpm-label">BPM</div>
+        <div class="bpm-row">
+          <div>
+            <div class="bpm ${state.level}">${s.bpm ?? "--"}</div>
+            <div class="bpm-label">BPM</div>
+          </div>
+          <div class="mini-chart">${drawChart(s.strap_tag)}</div>
+        </div>
 
         <div class="metrics">
           <div class="metric">
-            <div class="metric-label">RR atual</div>
+            <div class="metric-label">RR</div>
             <div class="metric-value">${s.rr_ms ?? "--"} ms</div>
           </div>
 
           <div class="metric">
-            <div class="metric-label">HRV RMSSD</div>
-            <div class="metric-value">${rmssd === null ? "coletando" : rmssd.toFixed(1) + " ms"}</div>
+            <div class="metric-label">HRV</div>
+            <div class="metric-value">${rmssd === null ? "..." : rmssd.toFixed(0) + " ms"}</div>
           </div>
 
           <div class="metric">
@@ -274,28 +560,8 @@ function render() {
           </div>
 
           <div class="metric">
-            <div class="metric-label">Recuperação</div>
-            <div class="metric-value ${state.recovery.cls}">${state.recovery.text}</div>
-          </div>
-
-          <div class="metric">
-            <div class="metric-label">Sistema nervoso</div>
-            <div class="metric-value ${state.autonomic.cls}">${state.autonomic.text}</div>
-          </div>
-
-          <div class="metric">
-            <div class="metric-label">Contato na pele</div>
+            <div class="metric-label">Contato</div>
             <div class="metric-value">${contactHTML(s.contact)}</div>
-          </div>
-
-          <div class="metric">
-            <div class="metric-label">Estado de alerta</div>
-            <div class="metric-value ${state.alert.cls}">${state.alert.text}</div>
-          </div>
-
-          <div class="metric">
-            <div class="metric-label">Amostras RR</div>
-            <div class="metric-value">${buffer.length}/${MAX_RR}</div>
           </div>
 
           <div class="metric">
@@ -306,6 +572,13 @@ function render() {
       </div>
     `;
   }).join("");
+
+  document.getElementById("sumActive").innerText = list.length;
+  document.getElementById("sumNormal").innerText = normal;
+  document.getElementById("sumWarning").innerText = warning;
+  document.getElementById("sumRisk").innerText = risk;
+
+  alarmIfNeeded(hasRisk);
 }
 
 async function fetchSessions() {
