@@ -746,10 +746,6 @@ function classify(session,rmssd){
 
   let immobile = false;
 
-  /* =====================
-  SEM CONTATO
-  ===================== */
-
   if(!contact){
 
     return {
@@ -777,10 +773,6 @@ function classify(session,rmssd){
       rmssd:"--"
     };
   }
-
-  /* =====================
-  OFFLINE
-  ===================== */
 
   if(updatedAgo > 15000){
 
@@ -810,10 +802,6 @@ function classify(session,rmssd){
     };
   }
 
-  /* =====================
-  SEM DADOS
-  ===================== */
-
   if(rmssd === null){
 
     return {
@@ -842,17 +830,9 @@ function classify(session,rmssd){
     };
   }
 
-  /* =====================
-  PICO
-  ===================== */
-
   if(bpm > 140){
     peak = true;
   }
-
-  /* =====================
-  IRREGULAR
-  ===================== */
 
   const variation =
   max(bpmBuffers[tag]) -
@@ -862,17 +842,9 @@ function classify(session,rmssd){
     irregular = true;
   }
 
-  /* =====================
-  IMOBILIDADE
-  ===================== */
-
   if(variation < 3){
     immobile = true;
   }
-
-  /* =====================
-  RISCO
-  ===================== */
 
   if(
     bpm > 135 &&
@@ -892,10 +864,6 @@ function classify(session,rmssd){
     alert =
     "RETIRAR TRABALHADOR";
   }
-
-  /* =====================
-  MONITORAR
-  ===================== */
 
   else if(
     bpm > 110 ||
@@ -941,35 +909,6 @@ function classify(session,rmssd){
     Math.round(rmssd)
   };
 }
-
-/* =========================
-IDADE
-========================= */
-
-function ageText(updatedAt){
-
-  if(!updatedAt){
-    return "--";
-  }
-
-  const diff =
-  Date.now() -
-  new Date(updatedAt).getTime();
-
-  if(diff < 3000){
-    return "agora";
-  }
-
-  if(diff < 60000){
-    return Math.round(diff/1000)+"s";
-  }
-
-  return Math.round(diff/60000)+"min";
-}
-
-/* =========================
-GRAFICO
-========================= */
 
 function drawChart(tag,level){
 
@@ -1048,10 +987,22 @@ function render(){
   let warning = 0;
   let risk = 0;
 
+  /* =========================
+  CORREÇÃO DO BUG
+  ========================= */
+
   if(list.length === 0){
+
+    document.getElementById("sumActive").innerText = 0;
+    document.getElementById("sumNormal").innerText = 0;
+    document.getElementById("sumWarning").innerText = 0;
+    document.getElementById("sumRisk").innerText = 0;
 
     root.innerHTML =
     '<div class="empty">Nenhum trabalhador ativo.</div>';
+
+    document.getElementById("status").innerText =
+    "aguardando trabalhadores";
 
     return;
   }
