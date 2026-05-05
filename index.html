@@ -1,4 +1,3 @@
-html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -23,35 +22,46 @@ body{
 }
 
 header{
+
   background:#020617;
+
   border-bottom:1px solid #1e293b;
-  padding:18px 22px;
+
+  padding:16px 20px;
 
   display:flex;
   justify-content:space-between;
   align-items:center;
   flex-wrap:wrap;
-  gap:12px;
+
+  gap:10px;
 }
 
 h1{
   margin:0;
-  font-size:28px;
+  font-size:34px;
 }
 
 .sub{
-  margin-top:6px;
+  margin-top:5px;
   color:#94a3b8;
-  font-size:14px;
+  font-size:13px;
 }
 
 button{
+
   border:none;
+
   background:#2563eb;
+
   color:white;
-  padding:11px 16px;
+
+  padding:10px 14px;
+
   border-radius:12px;
+
   cursor:pointer;
+
   font-weight:bold;
 }
 
@@ -60,69 +70,86 @@ button.off{
 }
 
 .container{
-  padding:18px;
+  padding:16px;
   max-width:1900px;
   margin:auto;
 }
 
+/* =========================
+RESUMO
+========================= */
+
 .summary{
+
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+
+  grid-template-columns:
+  repeat(auto-fit,minmax(140px,1fr));
+
   gap:12px;
-  margin-bottom:18px;
+
+  margin-bottom:16px;
 }
 
 .summary-card{
+
   background:#162235;
+
   border:1px solid #2d3d55;
-  border-radius:16px;
-  padding:15px;
+
+  border-radius:14px;
+
+  padding:12px;
 }
 
 .summary-label{
   color:#8da2c0;
-  font-size:12px;
+  font-size:11px;
 }
 
 .summary-value{
-  font-size:34px;
+  font-size:28px;
   font-weight:bold;
-  margin-top:5px;
+  margin-top:4px;
 }
 
-.ok{
-  color:#22c55e;
-}
-
-.warn{
-  color:#facc15;
-}
-
-.bad{
-  color:#ef4444;
-}
-
-.blue{
-  color:#38bdf8;
-}
+/* =========================
+GRID
+========================= */
 
 .grid{
+
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
-  gap:16px;
+
+  grid-template-columns:
+  repeat(auto-fill,minmax(250px,1fr));
+
+  gap:12px;
+
+  align-items:start;
 }
 
+/* =========================
+CARD
+========================= */
+
 .card{
+
   position:relative;
 
   background:#122033;
 
-  border-radius:20px;
-  border:2px solid #2d3d55;
+  border-radius:16px;
 
-  padding:16px;
+  border:1px solid #2d3d55;
+
+  padding:12px;
 
   transition:0.2s;
+
+  overflow:hidden;
+
+  min-height:auto;
 }
 
 .card.normal{
@@ -134,50 +161,62 @@ button.off{
 }
 
 .card.risk{
+
   border-color:#ef4444;
+
   background:#2a1010;
 
-  animation:pulse 1s infinite;
+  animation:pulse 1.4s infinite;
 }
 
 @keyframes pulse{
 
   0%{
-    box-shadow:0 0 0 rgba(239,68,68,0.1);
+    box-shadow:0 0 0 rgba(239,68,68,0.15);
   }
 
   50%{
-    box-shadow:0 0 26px rgba(239,68,68,0.8);
+    box-shadow:0 0 16px rgba(239,68,68,0.45);
   }
 
   100%{
-    box-shadow:0 0 0 rgba(239,68,68,0.1);
+    box-shadow:0 0 0 rgba(239,68,68,0.15);
   }
 }
 
 .card-top{
+
   display:flex;
+
   justify-content:space-between;
+
   align-items:flex-start;
-  gap:12px;
+
+  gap:8px;
 }
 
 .worker{
-  font-size:20px;
+  font-size:17px;
   font-weight:bold;
 }
 
 .meta{
-  margin-top:5px;
+  margin-top:3px;
   color:#94a3b8;
-  font-size:12px;
+  font-size:11px;
 }
 
 .status-big{
-  font-size:14px;
+
+  font-size:10px;
+
   font-weight:bold;
-  padding:8px 12px;
-  border-radius:12px;
+
+  padding:6px 9px;
+
+  border-radius:10px;
+
+  white-space:nowrap;
 }
 
 .status-big.normal{
@@ -195,17 +234,27 @@ button.off{
   color:#ef4444;
 }
 
+/* =========================
+BPM
+========================= */
+
 .vital{
-  margin-top:18px;
+
+  margin-top:12px;
 
   display:flex;
+
   justify-content:space-between;
+
   align-items:center;
 }
 
 .bpm{
-  font-size:72px;
+
+  font-size:52px;
+
   font-weight:bold;
+
   line-height:1;
 }
 
@@ -222,63 +271,101 @@ button.off{
 }
 
 .bpm-label{
-  margin-top:4px;
+  margin-top:3px;
   color:#94a3b8;
-  font-size:12px;
+  font-size:11px;
 }
 
+/* =========================
+GRAFICO
+========================= */
+
 .chart{
-  width:110px;
-  height:50px;
+
+  width:78px;
+
+  height:34px;
+
+  background:#081224;
+
+  border-radius:10px;
+
+  padding:3px;
+}
+
+/* =========================
+SEÇÕES
+========================= */
+
+.section-title{
+
+  margin-top:14px;
+
+  margin-bottom:8px;
+
+  color:#94a3b8;
+
+  font-size:10px;
+
+  letter-spacing:1px;
+}
+
+/* =========================
+METRICAS
+========================= */
+
+.metrics{
+
+  display:grid;
+
+  grid-template-columns:
+  repeat(2,1fr);
+
+  gap:8px;
+}
+
+.metric{
 
   background:#081224;
 
   border-radius:12px;
 
-  padding:4px;
-}
-
-.section-title{
-  margin-top:18px;
-  margin-bottom:10px;
-
-  color:#94a3b8;
-  font-size:12px;
-  letter-spacing:1px;
-}
-
-.metrics{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-}
-
-.metric{
-  background:#081224;
-  border-radius:14px;
-  padding:10px;
+  padding:8px;
 }
 
 .metric-label{
-  font-size:11px;
+  font-size:10px;
   color:#8da2c0;
 }
 
 .metric-value{
-  margin-top:5px;
-  font-size:16px;
+
+  margin-top:4px;
+
+  font-size:13px;
+
   font-weight:bold;
+
+  word-break:break-word;
 }
 
+/* =========================
+ALERTA
+========================= */
+
 .alert-bar{
-  margin-top:16px;
 
-  padding:12px;
+  margin-top:12px;
 
-  border-radius:14px;
+  padding:10px;
+
+  border-radius:12px;
 
   font-weight:bold;
+
   text-align:center;
+
+  font-size:13px;
 }
 
 .alert-bar.normal{
@@ -296,20 +383,65 @@ button.off{
   color:#ef4444;
 }
 
-.footer{
-  margin-top:18px;
-  color:#64748b;
-  font-size:13px;
+/* =========================
+CORES
+========================= */
+
+.ok{
+  color:#22c55e;
 }
 
-.empty{
-  border:1px dashed #334155;
-  border-radius:22px;
+.warn{
+  color:#facc15;
+}
 
-  padding:60px;
+.bad{
+  color:#ef4444;
+}
+
+/* =========================
+EMPTY
+========================= */
+
+.empty{
+
+  border:1px dashed #334155;
+
+  border-radius:20px;
+
+  padding:40px;
 
   text-align:center;
+
   color:#94a3b8;
+}
+
+.footer{
+
+  margin-top:16px;
+
+  color:#64748b;
+
+  font-size:12px;
+}
+
+/* =========================
+RESPONSIVO
+========================= */
+
+@media(max-width:700px){
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .bpm{
+    font-size:44px;
+  }
+
+  h1{
+    font-size:26px;
+  }
 }
 
 </style>
@@ -320,11 +452,13 @@ button.off{
 <header>
 
   <div>
+
     <h1>Painel Vital EPC13</h1>
 
     <div class="sub">
       Monitoramento fisiológico em tempo real · espaço confinado
     </div>
+
   </div>
 
   <button id="soundBtn" onclick="toggleSound()">
@@ -362,7 +496,8 @@ button.off{
   <div id="cards" class="grid"></div>
 
   <div class="footer">
-    Status: <span id="status">iniciando...</span>
+    Status:
+    <span id="status">iniciando...</span>
   </div>
 
 </div>
@@ -387,7 +522,6 @@ let rrBuffers = {};
 let bpmBuffers = {};
 
 let lastRR = {};
-let lastMovement = {};
 
 let soundEnabled = false;
 let lastAlarm = 0;
@@ -395,9 +529,9 @@ let lastAlarm = 0;
 const MAX_RR = 60;
 const MAX_BPM = 30;
 
-// =======================
-// AUDIO
-// =======================
+/* =========================
+AUDIO
+========================= */
 
 function toggleSound(){
 
@@ -410,13 +544,8 @@ function toggleSound(){
     ? "🔊 Alertas ligados"
     : "🔇 Alertas desligados";
 
-  btn.className = soundEnabled
-    ? ""
-    : "off";
-
-  if(soundEnabled){
-    beep(0.05);
-  }
+  btn.className =
+  soundEnabled ? "" : "off";
 }
 
 function beep(volume=0.25){
@@ -426,46 +555,40 @@ function beep(volume=0.25){
   try{
 
     const ctx =
-    new (window.AudioContext ||
+    new(window.AudioContext ||
     window.webkitAudioContext)();
 
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    const osc =
+    ctx.createOscillator();
+
+    const gain =
+    ctx.createGain();
 
     osc.type = "sine";
+
     osc.frequency.value = 850;
 
     gain.gain.value = volume;
 
     osc.connect(gain);
+
     gain.connect(ctx.destination);
 
     osc.start();
 
     setTimeout(()=>{
+
       osc.stop();
       ctx.close();
-    },250);
+
+    },220);
 
   }catch(e){}
 }
 
-function riskAlarm(){
-
-  const now = Date.now();
-
-  if(now - lastAlarm < 9000){
-    return;
-  }
-
-  lastAlarm = now;
-
-  beep(0.35);
-}
-
-// =======================
-// HELPERS
-// =======================
+/* =========================
+HELPERS
+========================= */
 
 function avg(arr){
 
@@ -494,9 +617,9 @@ function min(arr){
   return Math.min(...arr);
 }
 
-// =======================
-// RR
-// =======================
+/* =========================
+RR
+========================= */
 
 function pushRR(tag,rr){
 
@@ -531,9 +654,9 @@ function pushRR(tag,rr){
   }
 }
 
-// =======================
-// BPM
-// =======================
+/* =========================
+BPM
+========================= */
 
 function pushBPM(tag,bpm){
 
@@ -549,21 +672,6 @@ function pushBPM(tag,bpm){
     bpmBuffers[tag] = [];
   }
 
-  const last =
-  bpmBuffers[tag][
-    bpmBuffers[tag].length-1
-  ];
-
-  if(last){
-
-    const delta =
-    Math.abs(last-bpm);
-
-    if(delta > 35){
-      return;
-    }
-  }
-
   bpmBuffers[tag].push(bpm);
 
   if(bpmBuffers[tag].length > MAX_BPM){
@@ -571,9 +679,9 @@ function pushBPM(tag,bpm){
   }
 }
 
-// =======================
-// RMSSD
-// =======================
+/* =========================
+RMSSD
+========================= */
 
 function calcRMSSD(buffer){
 
@@ -596,37 +704,29 @@ function calcRMSSD(buffer){
   );
 }
 
-// =======================
-// STATUS
-// =======================
+/* =========================
+CLASSIFICAÇÃO
+========================= */
 
 function classify(session,rmssd){
 
   const tag = session.strap_tag;
 
   const bpm =
-  avg(bpmBuffers[tag]) ||
-  session.bpm ||
-  0;
-
-  const bpmPeak =
-  max(bpmBuffers[tag]);
-
-  const bpmMin =
-  min(bpmBuffers[tag]);
-
-  const bpmVariation =
-  bpmPeak - bpmMin;
+  Math.round(
+    avg(bpmBuffers[tag]) ||
+    session.bpm ||
+    0
+  );
 
   const contact =
   session.contact === true;
 
-  const rrBuffer =
-  rrBuffers[tag] || [];
-
   const updatedAgo =
   Date.now() -
-  new Date(session.updated_at).getTime();
+  new Date(
+    session.updated_at
+  ).getTime();
 
   let level = "normal";
 
@@ -638,11 +738,17 @@ function classify(session,rmssd){
 
   let recovery = "BOA";
 
-  let alertText = "NORMAL";
+  let alert = "NORMAL";
 
-  // =====================
-  // SINAL
-  // =====================
+  let irregular = false;
+
+  let peak = false;
+
+  let immobile = false;
+
+  /* =====================
+  SEM CONTATO
+  ===================== */
 
   if(!contact){
 
@@ -664,21 +770,25 @@ function classify(session,rmssd){
 
       peak:false,
 
-      immobile:false
+      immobile:false,
+
+      bpm:"--",
+
+      rmssd:"--"
     };
   }
 
-  // =====================
-  // SEM ATUALIZAÇÃO
-  // =====================
+  /* =====================
+  OFFLINE
+  ===================== */
 
   if(updatedAgo > 15000){
 
     return {
 
-      level:"risk",
+      level:"warning",
 
-      status:"SEM TELEMETRIA",
+      status:"OFFLINE",
 
       stress:"SEM DADOS",
 
@@ -686,21 +796,25 @@ function classify(session,rmssd){
 
       recovery:"SEM DADOS",
 
-      alert:"DISPOSITIVO OFFLINE",
+      alert:"SEM TELEMETRIA",
 
       irregular:false,
 
       peak:false,
 
-      immobile:false
+      immobile:false,
+
+      bpm:"--",
+
+      rmssd:"--"
     };
   }
 
-  // =====================
-  // COLETANDO
-  // =====================
+  /* =====================
+  SEM DADOS
+  ===================== */
 
-  if(rrBuffer.length < 10 || rmssd === null){
+  if(rmssd === null){
 
     return {
 
@@ -720,46 +834,45 @@ function classify(session,rmssd){
 
       peak:false,
 
-      immobile:false
+      immobile:false,
+
+      bpm:bpm || "--",
+
+      rmssd:"--"
     };
   }
 
-  // =====================
-  // PICO CARDÍACO
-  // =====================
-
-  let peak = false;
+  /* =====================
+  PICO
+  ===================== */
 
   if(bpm > 140){
-
     peak = true;
   }
 
-  // =====================
-  // IRREGULARIDADE
-  // =====================
+  /* =====================
+  IRREGULAR
+  ===================== */
 
-  let irregular = false;
+  const variation =
+  max(bpmBuffers[tag]) -
+  min(bpmBuffers[tag]);
 
-  if(bpmVariation > 35){
-
+  if(variation > 35){
     irregular = true;
   }
 
-  // =====================
-  // IMOBILIDADE
-  // =====================
+  /* =====================
+  IMOBILIDADE
+  ===================== */
 
-  let immobile = false;
-
-  if(bpmVariation < 3){
-
+  if(variation < 3){
     immobile = true;
   }
 
-  // =====================
-  // RISCO
-  // =====================
+  /* =====================
+  RISCO
+  ===================== */
 
   if(
     bpm > 135 &&
@@ -768,7 +881,7 @@ function classify(session,rmssd){
 
     level = "risk";
 
-    status = "RISCO FISIOLÓGICO";
+    status = "RISCO";
 
     stress = "CRÍTICO";
 
@@ -776,14 +889,13 @@ function classify(session,rmssd){
 
     recovery = "RUIM";
 
-    alertText =
+    alert =
     "RETIRAR TRABALHADOR";
-
   }
 
-  // =====================
-  // ATENÇÃO
-  // =====================
+  /* =====================
+  MONITORAR
+  ===================== */
 
   else if(
     bpm > 110 ||
@@ -800,41 +912,7 @@ function classify(session,rmssd){
 
     recovery = "ATENÇÃO";
 
-    alertText =
-    "MONITORAR";
-  }
-
-  // =====================
-  // NORMAL
-  // =====================
-
-  else{
-
-    level = "normal";
-
-    status = "ESTÁVEL";
-
-    stress = "NORMAL";
-
-    fatigue = "BAIXA";
-
-    recovery = "BOA";
-
-    alertText = "NORMAL";
-  }
-
-  // =====================
-  // FC BAIXA
-  // =====================
-
-  if(bpm < 45){
-
-    level = "warning";
-
-    status = "FC REDUZIDA";
-
-    alertText =
-    "VERIFICAR";
+    alert = "MONITORAR";
   }
 
   return {
@@ -849,7 +927,7 @@ function classify(session,rmssd){
 
     recovery,
 
-    alert:alertText,
+    alert,
 
     irregular,
 
@@ -857,32 +935,16 @@ function classify(session,rmssd){
 
     immobile,
 
-    bpm:
-    Math.round(bpm),
-
-    bpmPeak,
+    bpm,
 
     rmssd:
     Math.round(rmssd)
   };
 }
 
-// =======================
-// STATUS VISUAL
-// =======================
-
-function statusClass(level){
-
-  if(level === "risk"){
-    return "risk";
-  }
-
-  if(level === "warning"){
-    return "warning";
-  }
-
-  return "normal";
-}
+/* =========================
+IDADE
+========================= */
 
 function ageText(updatedAt){
 
@@ -905,9 +967,9 @@ function ageText(updatedAt){
   return Math.round(diff/60000)+"min";
 }
 
-// =======================
-// GRAFICO
-// =======================
+/* =========================
+GRAFICO
+========================= */
 
 function drawChart(tag,level){
 
@@ -918,8 +980,8 @@ function drawChart(tag,level){
     return "";
   }
 
-  const w = 110;
-  const h = 50;
+  const w = 78;
+  const h = 34;
 
   const minV =
   Math.min(...data)-2;
@@ -953,25 +1015,25 @@ function drawChart(tag,level){
   }).join(" ");
 
   return `
-    <svg viewBox="0 0 ${w} ${h}"
-      width="${w}"
-      height="${h}">
+  <svg viewBox="0 0 ${w} ${h}"
+    width="${w}"
+    height="${h}">
 
-      <polyline
-        points="${points}"
-        fill="none"
-        stroke="${color}"
-        stroke-width="3"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
+    <polyline
+      points="${points}"
+      fill="none"
+      stroke="${color}"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
   `;
 }
 
-// =======================
-// RENDER
-// =======================
+/* =========================
+RENDER
+========================= */
 
 function render(){
 
@@ -1016,7 +1078,6 @@ function render(){
 
     if(state.level === "risk"){
       risk++;
-      riskAlarm();
     }
     else if(state.level === "warning"){
       warning++;
@@ -1037,12 +1098,7 @@ function render(){
           </div>
 
           <div class="meta">
-            Mat:
             ${s.employee_matricula || "--"}
-
-            ·
-
-            ${s.strap_tag || "--"}
           </div>
 
         </div>
@@ -1068,16 +1124,18 @@ function render(){
         </div>
 
         <div class="chart">
+
           ${drawChart(
             s.strap_tag,
             state.level
           )}
+
         </div>
 
       </div>
 
       <div class="section-title">
-        DADOS FISIOLÓGICOS
+        DADOS
       </div>
 
       <div class="metrics">
@@ -1098,7 +1156,7 @@ function render(){
           </div>
 
           <div class="metric-value">
-            ${state.rmssd || "--"} ms
+            ${state.rmssd} ms
           </div>
         </div>
 
@@ -1134,7 +1192,7 @@ function render(){
 
         <div class="metric">
           <div class="metric-label">
-            Pico cardíaco
+            Pico
           </div>
 
           <div class="metric-value">
@@ -1144,44 +1202,21 @@ function render(){
 
         <div class="metric">
           <div class="metric-label">
-            Ritmo irregular
+            Ritmo
           </div>
 
           <div class="metric-value">
-            ${state.irregular ? "SIM" : "NÃO"}
+            ${state.irregular ? "IRREGULAR" : "OK"}
           </div>
         </div>
 
         <div class="metric">
           <div class="metric-label">
-            Imobilidade
+            Imóvel
           </div>
 
           <div class="metric-value">
             ${state.immobile ? "SIM" : "NÃO"}
-          </div>
-        </div>
-
-        <div class="metric">
-          <div class="metric-label">
-            Contato
-          </div>
-
-          <div class="metric-value">
-            ${s.contact
-              ? '<span class="ok">OK</span>'
-              : '<span class="bad">SEM CONTATO</span>'
-            }
-          </div>
-        </div>
-
-        <div class="metric">
-          <div class="metric-label">
-            Último pacote
-          </div>
-
-          <div class="metric-value">
-            ${ageText(s.updated_at)}
           </div>
         </div>
 
@@ -1207,28 +1242,35 @@ function render(){
 
   document.getElementById("sumRisk").innerText =
   risk;
+
+  document.getElementById("status").innerText =
+  "online " +
+  new Date().toLocaleTimeString();
 }
 
-// =======================
-// FETCH
-// =======================
+/* =========================
+FETCH
+========================= */
 
 async function fetchSessions(){
 
   const {data,error} =
   await supabaseClient
-    .from("current_sessions")
-    .select("*")
-    .eq("active",true)
-    .order("employee_name");
+
+  .from("current_sessions")
+
+  .select("*")
+
+  .eq("active",true)
+
+  .order(
+    "employee_name",
+    {ascending:true}
+  );
 
   if(error){
 
     console.log(error);
-
-    document.getElementById("status")
-    .innerText =
-    "erro";
 
     return;
   }
@@ -1240,17 +1282,12 @@ async function fetchSessions(){
     sessions[s.strap_tag] = s;
   }
 
-  document.getElementById("status")
-  .innerText =
-  "online " +
-  new Date().toLocaleTimeString();
-
   render();
 }
 
-// =======================
-// REALTIME
-// =======================
+/* =========================
+REALTIME
+========================= */
 
 function startRealtime(){
 
@@ -1259,6 +1296,7 @@ function startRealtime(){
   .channel("current_sessions_realtime")
 
   .on(
+
     "postgres_changes",
 
     {
@@ -1281,11 +1319,15 @@ function startRealtime(){
 
         if(s.active===false){
 
-          delete sessions[s.strap_tag];
+          delete sessions[
+            s.strap_tag
+          ];
 
         }else{
 
-          sessions[s.strap_tag]=s;
+          sessions[
+            s.strap_tag
+          ] = s;
         }
       }
 
@@ -1301,10 +1343,8 @@ fetchSessions();
 startRealtime();
 
 setInterval(fetchSessions,3000);
-setInterval(render,1000);
 
 </script>
 
 </body>
 </html>
-
