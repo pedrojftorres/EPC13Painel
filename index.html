@@ -1,8 +1,9 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Painel Cardíaco EPC13</title>
+  <title>Painel Vital EPC13</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -237,12 +238,16 @@
 
 <header>
   <div>
-    <h1>Painel Cardíaco em Tempo Real</h1>
-    <div class="sub">Funcionários ativos · BPM · HRV · estresse · fadiga · recuperação</div>
+    <h1>Painel Vital em Tempo Real</h1>
+    <div class="sub">
+      Funcionários ativos · BPM · RMSSD · carga fisiológica · recuperação
+    </div>
   </div>
 
   <div class="header-actions">
-    <button id="soundBtn" onclick="toggleSound()">🔊 Ativar alerta sonoro</button>
+    <button id="soundBtn" onclick="toggleSound()">
+      🔊 Ativar alerta sonoro
+    </button>
   </div>
 </header>
 
@@ -265,7 +270,7 @@
     </div>
 
     <div class="summary-card">
-      <div class="summary-label">Risco alto</div>
+      <div class="summary-label">Risco</div>
       <div class="summary-value bad" id="sumRisk">0</div>
     </div>
   </div>
@@ -278,10 +283,15 @@
 </div>
 
 <script>
-const SUPABASE_URL = "https://kxvbgpvdjbgbhbovnpyy.supabase.co";
-const SUPABASE_KEY = "sb_publishable_yg8SSqYLolo0oWx_WZqsFA_5P4TBiAg";
 
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL =
+  "https://kxvbgpvdjbgbhbovnpyy.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_yg8SSqYLolo0oWx_WZqsFA_5P4TBiAg";
+
+const supabaseClient =
+  supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let sessions = {};
 let rrBuffers = {};
@@ -293,25 +303,57 @@ let lastAlarmAt = 0;
 const MAX_RR = 60;
 const MAX_BPM = 25;
 
+// ==============================
+// MÉDIA BPM
+// ==============================
+
+function avg(arr) {
+  if (!arr || !arr.length) return 0;
+
+  return arr.reduce((a, b) => a + b, 0) / arr.length;
+}
+
+// ==============================
+// SOM
+// ==============================
+
 function toggleSound() {
+
   soundEnabled = !soundEnabled;
-  const btn = document.getElementById("soundBtn");
-  btn.innerText = soundEnabled ? "🔊 Alerta sonoro ligado" : "🔇 Alerta sonoro desligado";
+
+  const btn =
+    document.getElementById("soundBtn");
+
+  btn.innerText = soundEnabled
+    ? "🔊 Alerta sonoro ligado"
+    : "🔇 Alerta sonoro desligado";
+
   btn.className = soundEnabled ? "" : "off";
 
-  if (soundEnabled) beep(0.05);
+  if (soundEnabled) {
+    beep(0.05);
+  }
 }
 
 function beep(volume = 0.25) {
+
   if (!soundEnabled) return;
 
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = ctx.createOscillator();
-    const gain = ctx.createGain();
+
+    const ctx =
+      new (window.AudioContext ||
+      window.webkitAudioContext)();
+
+    const oscillator =
+      ctx.createOscillator();
+
+    const gain =
+      ctx.createGain();
 
     oscillator.type = "sine";
     oscillator.frequency.value = 880;
+
     gain.gain.value = volume;
 
     oscillator.connect(gain);
@@ -323,12 +365,14 @@ function beep(volume = 0.25) {
       oscillator.stop();
       ctx.close();
     }, 220);
+
   } catch (e) {
     console.log("Áudio bloqueado:", e);
   }
 }
 
 function alarmIfNeeded(hasRisk) {
+
   if (!hasRisk) return;
 
   const now = Date.now();
@@ -339,14 +383,36 @@ function alarmIfNeeded(hasRisk) {
   }
 }
 
+// ==============================
+// RR
+// ==============================
+
 function pushRR(tag, rr) {
-  if (!rr || rr <= 300 || rr >= 2000) return;
 
-  if (!rrBuffers[tag]) rrBuffers[tag] = [];
+  if (!rr) return;
 
-  if (lastRR[tag] === rr) return;
+  rr = Number(rr);
+
+  if (rr < 350 || rr > 1800) {
+    return;
+  }
+
+  if (!rrBuffers[tag]) {
+    rrBuffers[tag] = [];
+  }
+
+  if (lastRR[tag]) {
+
+    const delta =
+      Math.abs(rr - lastRR[tag]);
+
+    if (delta > 250) {
+      return;
+    }
+  }
 
   lastRR[tag] = rr;
+
   rrBuffers[tag].push(rr);
 
   if (rrBuffers[tag].length > MAX_RR) {
@@ -354,10 +420,30 @@ function pushRR(tag, rr) {
   }
 }
 
-function pushBPM(tag, bpm) {
-  if (!bpm || bpm <= 20 || bpm >= 230) return;
+// ==============================
+// BPM
+// ==============================
 
-  if (!bpmBuffers[tag]) bpmBuffers[tag] = [];
+function pushBPM(tag, bpm) {
+
+  if (!bpm) return;
+
+  bpm = Number(bpm);
+
+  if (bpm < 30 || bpm > 220) {
+    return;
+  }
+
+  if (!bpmBuffers[tag]) {
+    bpmBuffers[tag] = [];
+  }
+
+  const last =
+    bpmBuffers[tag][bpmBuffers[tag].length - 1];
+
+  if (last && Math.abs(last - bpm) > 35) {
+    return;
+  }
 
   bpmBuffers[tag].push(bpm);
 
@@ -366,108 +452,255 @@ function pushBPM(tag, bpm) {
   }
 }
 
+// ==============================
+// RMSSD
+// ==============================
+
 function calcRMSSD(buffer) {
-  if (!buffer || buffer.length < 5) return null;
+
+  if (!buffer || buffer.length < 5) {
+    return null;
+  }
 
   let sum = 0;
 
   for (let i = 0; i < buffer.length - 1; i++) {
-    const diff = buffer[i + 1] - buffer[i];
+
+    const diff =
+      buffer[i + 1] - buffer[i];
+
     sum += diff * diff;
   }
 
   return Math.sqrt(sum / (buffer.length - 1));
 }
 
+// ==============================
+// CLASSIFICAÇÃO
+// ==============================
+
 function classify(session, rmssd) {
-  const bpm = session.bpm || 0;
-  const contact = session.contact === true;
+
+  const bpm =
+    avg(bpmBuffers[session.strap_tag]) ||
+    session.bpm ||
+    0;
+
+  const contact =
+    session.contact === true;
+
+  const rrBuffer =
+    rrBuffers[session.strap_tag] || [];
 
   let level = "normal";
 
-  let stress = { text: "COLETANDO", cls: "warn" };
-  let fatigue = { text: "COLETANDO", cls: "warn" };
-  let recovery = { text: "COLETANDO", cls: "warn" };
-  let autonomic = { text: "COLETANDO", cls: "warn" };
-  let alert = { text: "NORMAL", cls: "ok" };
+  let stress = {
+    text: "COLETANDO",
+    cls: "warn"
+  };
 
-  if (!contact) {
-    level = "warning";
-    alert = { text: "SEM CONTATO", cls: "warn" };
+  let recovery = {
+    text: "COLETANDO",
+    cls: "warn"
+  };
+
+  let alert = {
+    text: "NORMAL",
+    cls: "ok"
+  };
+
+  // SEM CONTATO
+
+  if (!contact || rrBuffer.length < 10) {
+
+    return {
+
+      level: "warning",
+
+      stress: {
+        text: "AGUARDANDO",
+        cls: "warn"
+      },
+
+      recovery: {
+        text: "AGUARDANDO",
+        cls: "warn"
+      },
+
+      alert: {
+        text: "SEM SINAL",
+        cls: "warn"
+      }
+    };
   }
+
+  // BAIXO RMSSD
 
   if (rmssd !== null) {
-    if (rmssd < 18) {
+
+    if (rmssd < 12) {
+
       level = "risk";
-      stress = { text: "ALTO", cls: "bad" };
-      fatigue = { text: "ALTA", cls: "bad" };
-      recovery = { text: "RUIM", cls: "bad" };
-      autonomic = { text: "SIMPÁTICO", cls: "bad" };
-    } else if (rmssd < 35) {
-      if (level !== "risk") level = "warning";
-      stress = { text: "MODERADO", cls: "warn" };
-      fatigue = { text: "MÉDIA", cls: "warn" };
-      recovery = { text: "ATENÇÃO", cls: "warn" };
-      autonomic = { text: "ALERTA", cls: "warn" };
-    } else {
-      stress = { text: "BAIXO", cls: "ok" };
-      fatigue = { text: "BAIXA", cls: "ok" };
-      recovery = { text: "BOA", cls: "ok" };
-      autonomic = { text: "EQUILIBRADO", cls: "ok" };
+
+      stress = {
+        text: "ALTA",
+        cls: "bad"
+      };
+
+      recovery = {
+        text: "BAIXA",
+        cls: "bad"
+      };
+
     }
 
-    if (bpm > 115 && rmssd < 25) {
+    else if (rmssd < 25) {
+
+      level = "warning";
+
+      stress = {
+        text: "MODERADA",
+        cls: "warn"
+      };
+
+      recovery = {
+        text: "ATENÇÃO",
+        cls: "warn"
+      };
+
+    }
+
+    else {
+
+      stress = {
+        text: "NORMAL",
+        cls: "ok"
+      };
+
+      recovery = {
+        text: "BOA",
+        cls: "ok"
+      };
+    }
+
+    // SOBRECARGA
+
+    if (bpm > 135 && rmssd < 20) {
+
       level = "risk";
-      alert = { text: "SOBRECARGA", cls: "bad" };
-    } else if (bpm > 100 && rmssd < 35) {
-      if (level !== "risk") level = "warning";
-      alert = { text: "ATENÇÃO", cls: "warn" };
-    } else if (bpm < 50) {
-      if (level !== "risk") level = "warning";
-      alert = { text: "FC BAIXA", cls: "blue" };
+
+      alert = {
+        text: "RISCO OPERACIONAL",
+        cls: "bad"
+      };
+    }
+
+    else if (bpm > 115 && rmssd < 28) {
+
+      if (level !== "risk") {
+        level = "warning";
+      }
+
+      alert = {
+        text: "ATENÇÃO",
+        cls: "warn"
+      };
+    }
+
+    else if (bpm < 45) {
+
+      if (level !== "risk") {
+        level = "warning";
+      }
+
+      alert = {
+        text: "FC REDUZIDA",
+        cls: "blue"
+      };
+    }
+
+    else {
+
+      alert = {
+        text: "NORMAL",
+        cls: "ok"
+      };
     }
   }
 
-  return { level, stress, fatigue, recovery, autonomic, alert };
+  return {
+    level,
+    stress,
+    recovery,
+    alert
+  };
 }
 
+// ==============================
+// UI
+// ==============================
+
 function statusDot(level) {
+
   if (level === "risk") return "🔴";
   if (level === "warning") return "🟡";
+
   return "🟢";
 }
 
 function contactHTML(contact) {
+
   return contact
     ? '<span class="ok">COM CONTATO</span>'
     : '<span class="bad">SEM CONTATO</span>';
 }
 
 function ageText(updatedAt) {
+
   if (!updatedAt) return "--";
 
-  const diff = Date.now() - new Date(updatedAt).getTime();
+  const diff =
+    Date.now() -
+    new Date(updatedAt).getTime();
 
   if (diff < 3000) return "agora";
-  if (diff < 60000) return Math.round(diff / 1000) + "s";
+
+  if (diff < 60000) {
+    return Math.round(diff / 1000) + "s";
+  }
 
   return Math.round(diff / 60000) + "min";
 }
 
 function drawChart(tag) {
-  const data = bpmBuffers[tag] || [];
+
+  const data =
+    bpmBuffers[tag] || [];
+
   if (data.length < 2) return "";
 
   const w = 90;
   const h = 38;
-  const min = Math.min(...data) - 2;
-  const max = Math.max(...data) + 2;
-  const range = Math.max(max - min, 1);
+
+  const min =
+    Math.min(...data) - 2;
+
+  const max =
+    Math.max(...data) + 2;
+
+  const range =
+    Math.max(max - min, 1);
 
   let points = data.map((v, i) => {
-    const x = (i / (data.length - 1)) * w;
-    const y = h - ((v - min) / range) * h;
+
+    const x =
+      (i / (data.length - 1)) * w;
+
+    const y =
+      h - ((v - min) / range) * h;
+
     return `${x.toFixed(1)},${y.toFixed(1)}`;
+
   }).join(" ");
 
   return `
@@ -484,9 +717,18 @@ function drawChart(tag) {
   `;
 }
 
+// ==============================
+// RENDER
+// ==============================
+
 function render() {
-  const list = Object.values(sessions).filter(s => s.active !== false);
-  const root = document.getElementById("cards");
+
+  const list =
+    Object.values(sessions)
+    .filter(s => s.active !== false);
+
+  const root =
+    document.getElementById("cards");
 
   let normal = 0;
   let warning = 0;
@@ -494,103 +736,190 @@ function render() {
   let hasRisk = false;
 
   if (list.length === 0) {
+
     document.getElementById("sumActive").innerText = 0;
     document.getElementById("sumNormal").innerText = 0;
     document.getElementById("sumWarning").innerText = 0;
     document.getElementById("sumRisk").innerText = 0;
 
-    root.innerHTML = '<div class="empty">Nenhum funcionário ativo no momento.</div>';
+    root.innerHTML =
+      '<div class="empty">Nenhum funcionário ativo.</div>';
+
     return;
   }
 
   root.innerHTML = list.map(s => {
+
     pushRR(s.strap_tag, Number(s.rr_ms));
     pushBPM(s.strap_tag, Number(s.bpm));
 
-    const rrBuffer = rrBuffers[s.strap_tag] || [];
-    const rmssd = calcRMSSD(rrBuffer);
-    const state = classify(s, rmssd);
+    const rrBuffer =
+      rrBuffers[s.strap_tag] || [];
+
+    const rmssd =
+      calcRMSSD(rrBuffer);
+
+    const state =
+      classify(s, rmssd);
 
     if (state.level === "risk") {
       risk++;
       hasRisk = true;
-    } else if (state.level === "warning") {
+    }
+
+    else if (state.level === "warning") {
       warning++;
-    } else {
+    }
+
+    else {
       normal++;
     }
 
     return `
       <div class="card ${state.level}">
+
         <div class="top">
+
           <div>
-            <div class="name">${s.employee_name || "--"}</div>
-            <div class="meta">Mat: ${s.employee_matricula || "--"} · ${s.strap_tag || "--"}</div>
+            <div class="name">
+              ${s.employee_name || "--"}
+            </div>
+
+            <div class="meta">
+              Mat: ${s.employee_matricula || "--"}
+              ·
+              ${s.strap_tag || "--"}
+            </div>
           </div>
-          <div class="status-dot">${statusDot(state.level)}</div>
+
+          <div class="status-dot">
+            ${statusDot(state.level)}
+          </div>
+
         </div>
 
         <div class="bpm-row">
+
           <div>
-            <div class="bpm ${state.level}">${s.bpm ?? "--"}</div>
-            <div class="bpm-label">BPM</div>
+
+            <div class="bpm ${state.level}">
+              ${Math.round(avg(bpmBuffers[s.strap_tag])) || s.bpm || "--"}
+            </div>
+
+            <div class="bpm-label">
+              BPM
+            </div>
+
           </div>
-          <div class="mini-chart">${drawChart(s.strap_tag)}</div>
+
+          <div class="mini-chart">
+            ${drawChart(s.strap_tag)}
+          </div>
+
         </div>
 
         <div class="metrics">
+
           <div class="metric">
             <div class="metric-label">RR</div>
-            <div class="metric-value">${s.rr_ms ?? "--"} ms</div>
+
+            <div class="metric-value">
+              ${s.rr_ms ?? "--"} ms
+            </div>
           </div>
 
           <div class="metric">
-            <div class="metric-label">HRV</div>
-            <div class="metric-value">${rmssd === null ? "..." : rmssd.toFixed(0) + " ms"}</div>
+            <div class="metric-label">RMSSD</div>
+
+            <div class="metric-value">
+              ${rmssd === null ? "..." : rmssd.toFixed(0) + " ms"}
+            </div>
           </div>
 
           <div class="metric">
-            <div class="metric-label">Estresse</div>
-            <div class="metric-value ${state.stress.cls}">${state.stress.text}</div>
+            <div class="metric-label">
+              Carga fisiológica
+            </div>
+
+            <div class="metric-value ${state.stress.cls}">
+              ${state.stress.text}
+            </div>
           </div>
 
           <div class="metric">
-            <div class="metric-label">Fadiga</div>
-            <div class="metric-value ${state.fatigue.cls}">${state.fatigue.text}</div>
+            <div class="metric-label">
+              Recuperação
+            </div>
+
+            <div class="metric-value ${state.recovery.cls}">
+              ${state.recovery.text}
+            </div>
           </div>
 
           <div class="metric">
-            <div class="metric-label">Contato</div>
-            <div class="metric-value">${contactHTML(s.contact)}</div>
+            <div class="metric-label">
+              Contato
+            </div>
+
+            <div class="metric-value">
+              ${contactHTML(s.contact)}
+            </div>
           </div>
 
           <div class="metric">
-            <div class="metric-label">Atualizado</div>
-            <div class="metric-value">${ageText(s.updated_at)}</div>
+            <div class="metric-label">
+              Atualizado
+            </div>
+
+            <div class="metric-value">
+              ${ageText(s.updated_at)}
+            </div>
           </div>
+
         </div>
+
       </div>
     `;
+
   }).join("");
 
-  document.getElementById("sumActive").innerText = list.length;
-  document.getElementById("sumNormal").innerText = normal;
-  document.getElementById("sumWarning").innerText = warning;
-  document.getElementById("sumRisk").innerText = risk;
+  document.getElementById("sumActive").innerText =
+    list.length;
+
+  document.getElementById("sumNormal").innerText =
+    normal;
+
+  document.getElementById("sumWarning").innerText =
+    warning;
+
+  document.getElementById("sumRisk").innerText =
+    risk;
 
   alarmIfNeeded(hasRisk);
 }
 
+// ==============================
+// SUPABASE
+// ==============================
+
 async function fetchSessions() {
-  const { data, error } = await supabaseClient
-    .from("current_sessions")
-    .select("*")
-    .eq("active", true)
-    .order("employee_name", { ascending: true });
+
+  const { data, error } =
+    await supabaseClient
+      .from("current_sessions")
+      .select("*")
+      .eq("active", true)
+      .order("employee_name", {
+        ascending: true
+      });
 
   if (error) {
+
     console.log(error);
-    document.getElementById("status").innerText = "erro ao buscar dados";
+
+    document.getElementById("status").innerText =
+      "erro ao buscar dados";
+
     return;
   }
 
@@ -600,32 +929,55 @@ async function fetchSessions() {
     sessions[s.strap_tag] = s;
   }
 
-  document.getElementById("status").innerText = "online " + new Date().toLocaleTimeString();
+  document.getElementById("status").innerText =
+    "online " +
+    new Date().toLocaleTimeString();
+
   render();
 }
 
 function startRealtime() {
+
   supabaseClient
     .channel("current_sessions_realtime")
+
     .on(
       "postgres_changes",
-      { event: "*", schema: "public", table: "current_sessions" },
+
+      {
+        event: "*",
+        schema: "public",
+        table: "current_sessions"
+      },
+
       payload => {
+
         if (payload.eventType === "DELETE") {
+
           delete sessions[payload.old.strap_tag];
+
         } else {
+
           const s = payload.new;
+
           if (s.active === false) {
+
             delete sessions[s.strap_tag];
+
           } else {
+
             sessions[s.strap_tag] = s;
           }
         }
 
-        document.getElementById("status").innerText = "tempo real " + new Date().toLocaleTimeString();
+        document.getElementById("status").innerText =
+          "tempo real " +
+          new Date().toLocaleTimeString();
+
         render();
       }
     )
+
     .subscribe();
 }
 
@@ -634,7 +986,9 @@ startRealtime();
 
 setInterval(fetchSessions, 3000);
 setInterval(render, 1000);
+
 </script>
 
 </body>
 </html>
+```
